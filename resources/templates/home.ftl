@@ -16,18 +16,23 @@
 
             </nav>
         </header>
+        <div class="container bg-white">
+            <div class="d-inline">
+                <a href="/setup">Profile</a>
+            </div>
+        </div>
         <div class="container">
             <div class="row">
-                    
-                        <div class="card p-0 col-8 offset-2 col-sm-7 col-md-4 offset-md-8 bg-white justify-content-center">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    ${user.name}
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <img src="${user.profilePicture}" width="100%"/>
-                            </div>
+                <div class="card p-0 col-8 offset-2 col-sm-7 col-md-4 offset-md-8 bg-white justify-content-center">
+                    <div class="card-header">
+                       <div class="card-title">
+                            ${user.name}
+                       </div>
+                    </div>
+                    <div class="card-body">
+                        <img src="${user.profilePicture}" width="100%"/>
+                    </div>   
+                </div>               
             </div>
         </div>
     </body>

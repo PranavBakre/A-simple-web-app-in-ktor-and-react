@@ -1,6 +1,7 @@
 package com.ktor.Assignment
 
 import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 
@@ -16,6 +17,7 @@ object Addresses: LongIdTable(){
     val user=reference("user",Users)
 }
 class Address(id: EntityID<Long>) : LongEntity(id){
+    companion object : LongEntityClass<Address>(Addresses)
     var title by Addresses.title
     var line1 by Addresses.line1
     var line2 by Addresses.line2

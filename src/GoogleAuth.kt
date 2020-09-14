@@ -13,13 +13,10 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.routing.header
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
 val httpClient = HttpClient(Jetty)
@@ -29,14 +26,14 @@ val mysqlPassword=System.getenv("MYSQL_PASSWORD");
 val googleClientId=System.getenv("CLIENT_ID")
 val googleClientSecret=System.getenv("CLIENT_SECRET")
 var googleOAuthProvider= OAuthServerSettings.OAuth2ServerSettings(
-    name = "google",
-    authorizeUrl = "https://accounts.google.com/o/oauth2/auth",
-    accessTokenUrl = "https://www.googleapis.com/oauth2/v3/token",
-    requestMethod = HttpMethod.Post,
+        name = "google",
+        authorizeUrl = "https://accounts.google.com/o/oauth2/auth",
+        accessTokenUrl = "https://www.googleapis.com/oauth2/v3/token",
+        requestMethod = HttpMethod.Post,
 
-    clientId = googleClientId,
-    clientSecret = googleClientSecret,
-    defaultScopes = listOf("profile","email")
+        clientId = googleClientId,
+        clientSecret = googleClientSecret,
+        defaultScopes = listOf("profile","email")
 )
 
 fun Application.authenticationModule(){
@@ -105,33 +102,85 @@ fun Application.authenticationModule(){
             }
         }
         route("/setup" ) {
+            get {
+                val auth=call.sessions.get<AuthSession>()
+                if (auth!=null) {
+                    var user=Gson().fromJson(auth.userId,UserResponse::class.java)
+                    var dbUser:User?=null
+                    var profileLock=false
+                    var addresses:List<Address>?=null
+                    transaction{
+                        var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
+                        if(!dbUserList.empty()){
+                            dbUser=dbUserList.iterator().next()
+                            profileLock=dbUser!!.profileLock
+                        }
+                        addresses=Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
+                    }
+                    call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
+                }
+            }
+            post {
+                val auth=call.sessions.get<AuthSession>()
+                if (auth!=null) {
+                    var dbUser:User?=null
+                    var user=Gson().fromJson(auth.userId,UserResponse::class.java)
+                    var params=call.receiveParameters()
+                    transaction{
+                        var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
+                        if(!dbUserList.empty()){
+                            dbUser=dbUserList.iterator().next()
+
+                            params["mobile-number"]?.let{ dbUser!!.mobileNumber=it }
+                            if (params["username"]!=null && !dbUser!!.profileLock)
+                            {
+                                params["username"]?.let{ dbUser!!.email =it }
+                                dbUser!!.profileLock=true
+                            }
+                        }
+                    }
+                    call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to dbUser!!.profileLock),""))
+                }
+
+            }
+        }
+
+        route("/address") {
             post {
                 val auth=call.sessions.get<AuthSession>()
                 if (auth!=null) {
                     var user=Gson().fromJson(auth.userId,UserResponse::class.java)
+                    var dbUser:User?=null
                     var params=call.receiveParameters()
                     transaction{
-                    var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
-                    if(!dbUserList.empty()){
-                        var dbUser=dbUserList.iterator().next()
+                        var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
+                        if(!dbUserList.empty()){
+                            dbUser=dbUserList.iterator().next()
+                        }
+                        Address.new{
+                            title=params["title"]!!
+                            line1=params["line1"]!!
+                            line2=params["line2"]!!
+                            locality=params["locality"]!!
+                            city=params["city"]!!
+                            state=params["state"]!!
+                            pincode=params["pincode"]!!.toInt()
+                            active=true
+                            this.user=dbUser!!
 
-                        params["mobile-number"]?.let{ dbUser.mobileNumber=it }
-                        if (params["username"]!=null && !dbUser.profileLock)
-                        {
-                            params["username"]?.let{ dbUser.email =it }
-                            dbUser.profileLock=true
                         }
                     }
-                    }
+                    call.respond(HttpStatusCode.Accepted,"Success")
+                } else {
+                    call.respond(HttpStatusCode.Forbidden,"Missing Authentication")
                 }
-                call.respondRedirect("/")
             }
         }
-
-
     }
 
 }
+
+
 
 
 private fun ApplicationCall.redirectUrl(path:String):String {
