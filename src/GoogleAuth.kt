@@ -18,6 +18,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.lang.Exception
 
 val httpClient = HttpClient(Jetty)
 val dbUrl=System.getenv("DATABASE_URL")
@@ -80,12 +81,9 @@ fun Application.authenticationModule(){
                                 }
                             }
                             call.sessions.set<AuthSession>(AuthSession(json))
+                            call.respondRedirect("/setup")
+                            return@handle
 
-                            if(!profileLock)
-                            {
-                                call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to profileLock),""))
-                                return@handle
-                            }
 
 
                         }
@@ -126,6 +124,9 @@ fun Application.authenticationModule(){
                     var dbUser:User?=null
                     var user=Gson().fromJson(auth.userId,UserResponse::class.java)
                     var params=call.receiveParameters()
+                    try {
+
+
                     transaction{
                         var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
                         if(!dbUserList.empty()){
@@ -139,7 +140,13 @@ fun Application.authenticationModule(){
                             }
                         }
                     }
-                    call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to dbUser!!.profileLock),""))
+                        call.respond (mapOf("success" to true,"message" to "Operation Successful"))
+                    }
+                    catch(e: Exception) {
+                        call.respond (mapOf("success" to false,"message" to e.message))
+                    }
+
+
                 }
 
             }
@@ -148,33 +155,68 @@ fun Application.authenticationModule(){
         route("/address") {
             post {
                 val auth=call.sessions.get<AuthSession>()
-                if (auth!=null) {
-                    var user=Gson().fromJson(auth.userId,UserResponse::class.java)
-                    var dbUser:User?=null
-                    var params=call.receiveParameters()
-                    transaction{
-                        var dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
-                        if(!dbUserList.empty()){
-                            dbUser=dbUserList.iterator().next()
-                        }
-                        Address.new{
-                            title=params["title"]!!
-                            line1=params["line1"]!!
-                            line2=params["line2"]!!
-                            locality=params["locality"]!!
-                            city=params["city"]!!
-                            state=params["state"]!!
-                            pincode=params["pincode"]!!.toInt()
-                            active=true
-                            this.user=dbUser!!
+                try {
+                    if (auth != null) {
+                        var user = Gson().fromJson(auth.userId, UserResponse::class.java)
+                        var dbUser: User? = null
+                        var params = call.receiveParameters()
+                        transaction {
+                            var dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
+                            if (!dbUserList.empty()) {
+                                dbUser = dbUserList.iterator().next()
+                            }
+                            Address.new {
+                                title = params["title"]!!
+                                line1 = params["line1"]!!
+                                line2 = params["line2"]!!
+                                locality = params["locality"]!!
+                                city = params["city"]!!
+                                state = params["state"]!!
+                                pincode = params["pincode"]!!.toInt()
+                                active = true
+                                this.user = dbUser!!
 
+                            }
                         }
+                        call.respond(mapOf("success" to true, "message" to "Operation Successful"))
+                    } else {
+                        call.respond(mapOf("success" to false, "message" to "Missing Authentication"))
                     }
-                    call.respond(HttpStatusCode.Accepted,"Success")
-                } else {
-                    call.respond(HttpStatusCode.Forbidden,"Missing Authentication")
+                } catch (e:Exception) {
+                    call.respond(mapOf("success" to false, "message" to e.message))
                 }
             }
+
+            delete("/{id}") {
+                val id = call.parameters["id"]
+                val auth = call.sessions.get<AuthSession>()
+                try {
+                    if (auth != null) {
+                        var user = Gson().fromJson(auth.userId, UserResponse::class.java)
+                        var dbUser: User? = null
+                        var address: Address? = null
+                        transaction {
+                            var dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
+                            if (!dbUserList.empty()) {
+                                dbUser = dbUserList.iterator().next()
+                            }
+                            var addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
+                            if (addressList.hasNext()) {
+                                address = addressList.next()
+                                address!!.delete()
+                            }
+                        }
+
+                            call.respond(mapOf("success" to true, "message" to "Operation Successful"))
+
+                    } else {
+                        call.respond(mapOf("success" to false, "message" to "Missing Authentication"))
+                    }
+                } catch (e: Exception) {
+                    call.respond(mapOf("success" to false, "message" to e.message))
+                }
+            }
+
         }
     }
 
