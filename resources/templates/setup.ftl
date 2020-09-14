@@ -18,6 +18,7 @@
             fetch(`/address/`+id,{
                 method:"delete"
             })
+            location.reload()
         }
         </script>
     
