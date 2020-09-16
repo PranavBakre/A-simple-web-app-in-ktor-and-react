@@ -14,6 +14,7 @@ import io.ktor.features.*
 import org.slf4j.event.*
 import io.ktor.gson.*
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -79,14 +80,14 @@ fun Application.module(testing: Boolean = false) {
             val auth=call.sessions.get<AuthSession>();
             if(auth!=null) {
                 var user = Gson().fromJson(auth.userId, UserResponse::class.java)
-                var dbUser: User? = null
+                var dbUserList: SizedIterable<User>?=null
+                var user1:User?=null
                 transaction {
-                    var dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
-                    if (!dbUserList.empty()) {
-                        dbUser = dbUserList.iterator().next()
-                    }
+                    dbUserList=User.find((Users.email eq user.email) and (Users.name eq user.name))
+                    user1=if(dbUserList!=null && !dbUserList!!.empty()) dbUserList!!.iterator().next() else null
                 }
-                call.respond(FreeMarkerContent("home.ftl", mapOf("user" to dbUser!!),""))
+
+                call.respond(FreeMarkerContent("home.ftl", mapOf("user" to (user1)),""))
             }
 
         }

@@ -156,7 +156,7 @@
                 body: formData
     
             })
-            location.reload()
+            location.reload(true)
         })
     
         function addAddress() {
@@ -173,7 +173,7 @@
                 body: formData
     
             })
-            location.reload()
+            location.reload(true)
         })
     </script>
 </html>

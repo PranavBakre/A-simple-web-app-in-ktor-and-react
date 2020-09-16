@@ -64,7 +64,8 @@ fun Application.authenticationModule(){
                         if (user.id != null) {
                             var profileLock:Boolean=true
                             transaction {
-                                val userQuery=User.find{(Users.email eq user.email) and (Users.name eq user.name)}
+                                val userQuery=User.find{(Users.email eq user.email)}
+                                log.debug(""+userQuery.empty())
                                 if (userQuery.empty()){
                                     dbUser=User.new{
                                         name=user.name
@@ -112,8 +113,9 @@ fun Application.authenticationModule(){
                         if(!dbUserList.empty()){
                             dbUser=dbUserList.iterator().next()
                             profileLock=dbUser!!.profileLock
+                            addresses=Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
                         }
-                        addresses=Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
+
                     }
                     call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
                 }
@@ -135,7 +137,7 @@ fun Application.authenticationModule(){
                             params["mobile-number"]?.let{ dbUser!!.mobileNumber=it }
                             if (params["username"]!=null && !dbUser!!.profileLock)
                             {
-                                params["username"]?.let{ dbUser!!.email =it }
+                                params["username"]?.let{ dbUser!!.username =it }
                                 dbUser!!.profileLock=true
                             }
                         }
