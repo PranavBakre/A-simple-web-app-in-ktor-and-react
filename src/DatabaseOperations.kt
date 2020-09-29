@@ -1,28 +1,23 @@
-package com.ktor.Assignment
+package com.ktor.assignment
 
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.dao.id.LongIdTable
+import com.ktor.assignment.models.Addresses
+import com.ktor.assignment.models.Users
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
 fun main(){
-    var conn= Database.connect(System.getenv("DATABASE_URL"),
-            "org.mariadb.jdbc.Driver",System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"))
+    var dbUrl=System.getenv("DATABASE_URL")
+    var conn= Database.connect(dbUrl.substring(0,dbUrl.lastIndexOf('/')),
+            "com.mysql.cj.jdbc.Driver",System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"))
 
-//    transaction{
-//        SchemaUtils.createDatabase("KTOR_TEST")
-//    }
-    transaction(){
-        SchemaUtils.dropDatabase("KTOR")
-        SchemaUtils.createDatabase("KTOR")
 
+    transaction() {
+        SchemaUtils.dropDatabase(dbUrl.substring(dbUrl.lastIndexOf('/')+1))
+        SchemaUtils.createDatabase(dbUrl.substring(dbUrl.lastIndexOf('/')+1))
     }
-    Database.connect("jdbc:mysql://localhost:3306/KTOR",
-            "org.mariadb.jdbc.Driver","pranav","Praan123")
+    Database.connect(System.getenv("DATABASE_URL"),
+            "com.mysql.cj.jdbc.Driver","pranav","Praan123")
     transaction {
         SchemaUtils.create(Users)
         SchemaUtils.create(Addresses)

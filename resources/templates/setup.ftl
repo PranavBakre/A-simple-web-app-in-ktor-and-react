@@ -49,8 +49,8 @@
                             <input type="text" id="name" class="form-control" value="${user.name}" disabled>
                         </div>
                         <div class="form-group col-12 col-md-5 offset-md-1  justify-content-center">
-                            <label for="mobile-number">Email</label>
-                            <input type="email" id="mobile-number" class="form-control " value="${user.email}" disabled>
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control " value="${user.email}" disabled>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -148,15 +148,20 @@
         })
     
         document.getElementById("formProfile").addEventListener("submit", (e) => {
-            event.preventDefault()
-            var formData = new FormData(document.getElementById("formProfile"))
+            e.preventDefault()
+            //var formData = new FormData(document.getElementById("formProfile"))
             fetch("/setup", {
                 method: "post",
-    
-                body: formData
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "username": $('#username').val(),
+                    "mobile-number": $('#mobile-number').val()
+                })//formData
     
             })
-            location.reload(true)
+
         })
     
         function addAddress() {
