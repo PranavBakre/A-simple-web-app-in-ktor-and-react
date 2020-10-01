@@ -26,7 +26,7 @@ import java.lang.Exception
 val httpClient = HttpClient(Jetty)
 val dbUrl=System.getenv("DATABASE_URL")
 val mysqlUser=System.getenv("MYSQL_USER")
-val mysqlPassword=System.getenv("MYSQL_PASSWORD");
+val mysqlPassword=System.getenv("MYSQL_PASSWORD")
 val googleClientId=System.getenv("CLIENT_ID")
 val googleClientSecret=System.getenv("CLIENT_SECRET")
 var googleOAuthProvider= OAuthServerSettings.OAuth2ServerSettings(
@@ -46,41 +46,38 @@ fun Application.authenticationModule(){
             client= httpClient
             providerLookup= { googleOAuthProvider }
             urlProvider={redirectUrl("/login")}
+
         }
     }
 
-    var conn= Database.connect(dbUrl,
+    Database.connect(dbUrl,
             "com.mysql.cj.jdbc.Driver", mysqlUser, mysqlPassword)
 
     routing {
         authenticate("GoogleAuth") {
             route("/login") {
                 handle{
+
                     val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
                     if (principal!=null) {
                         val json = httpClient.get<String>("https://www.googleapis.com/userinfo/v2/me") {
                             header("Authorization", "Bearer ${principal.accessToken}")
                         }
 
-                        var user=Gson().fromJson(json, UserResponse::class.java)
-                        var dbUser: User? =null
+                        val user=Gson().fromJson(json, UserResponse::class.java)
+
                         if (user.id != null) {
-                            var profileLock:Boolean=true
                             transaction {
-                                val userQuery= User.find{(Users.email eq user.email)}
-                                if (userQuery.empty()){
-                                    dbUser= User.new{
-                                        name=user.name
-                                        email=user.email
-                                        username=user.email
-                                        accessToken=principal.accessToken
-                                        profilePicture=user.picture
-                                    }
-                                    profileLock= dbUser!!.profileLock
-                                } else {
-                                    dbUser=userQuery.iterator().next()
-                                    dbUser!!.accessToken=principal.accessToken
-                                    profileLock=dbUser!!.profileLock
+                                   User.find{(Users.email eq user.email)}.let {
+                                    if (it.empty())
+                                        User.new{
+                                            name=user.name
+                                            email=user.email
+                                            username=user.email
+                                            accessToken=principal.accessToken
+                                            profilePicture=user.picture
+                                        }
+                                    else it.iterator().next()
                                 }
                             }
                             call.sessions.set<AuthSession>(AuthSession(json))
@@ -106,18 +103,18 @@ fun Application.authenticationModule(){
             get {
                 val auth=call.sessions.get<AuthSession>()
                 if (auth!=null) {
-                    var user=Gson().fromJson(auth.userId, UserResponse::class.java)
+                    val user=Gson().fromJson(auth.userId, UserResponse::class.java)
                     var dbUser: User?=null
                     var profileLock=false
                     var addresses:List<Address>?=null
                     transaction{
-                        var dbUserList= User.find((Users.email eq user.email) and (Users.name eq user.name))
-                        if(!dbUserList.empty()){
-                            dbUser=dbUserList.iterator().next()
-                            profileLock=dbUser!!.profileLock
-                            addresses= Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
+                        User.find((Users.email eq user.email) and (Users.name eq user.name)).let{
+                            if(!it.empty()){
+                                dbUser=it.iterator().next()
+                                addresses= Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
+                                profileLock=dbUser!!.profileLock
+                            }
                         }
-
                     }
                     call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
                 }
@@ -125,30 +122,37 @@ fun Application.authenticationModule(){
             post {
                 val auth=call.sessions.get<AuthSession>()
                 if (auth!=null) {
-                    var dbUser: User?=null
-                    var user=Gson().fromJson(auth.userId, UserResponse::class.java)
-                    var params=call.receive<ProfileRequest>()
-                    try {
 
+                    val user=Gson().fromJson(auth.userId, UserResponse::class.java)
+                    val params=call.receive<ProfileRequest>()
 
                     transaction{
-                        var dbUserList= User.find((Users.email eq user.email) and (Users.name eq user.name))
-                        if(!dbUserList.empty()){
-                            dbUser=dbUserList.iterator().next()
+                        User.find((Users.email eq user.email) and (Users.name eq user.name)).let{
+                            if(!it.empty()){
+                                it.iterator().next().apply {
+                                    if (params.mobileNumber.matches(Regex("^[7-9][0-9]{9}$")))
+                                        this.mobileNumber=params.mobileNumber
 
-                            params.mobileNumber?.let{ dbUser!!.mobileNumber=it }
-                            if (params.username!=null && !dbUser!!.profileLock)
-                            {
-                                params.username?.let{ dbUser!!.username =it }
-                                dbUser!!.profileLock=true
+                                    if (!this.profileLock && params.username!="")
+                                    {
+                                        User.find(Users.username eq params.username).let {userList->
+                                            if (userList.empty()){
+                                                this.username=params.username
+                                                this.profileLock=true
+                                            }
+
+                                        }
+
+                                    }
+                                }
+
                             }
                         }
+
+
                     }
-                        call.respond (mapOf("success" to true,"message" to "Operation Successful"))
-                    }
-                    catch(e: Exception) {
-                        call.respond (mapOf("success" to false,"message" to e.message))
-                    }
+                    call.respond (mapOf("success" to true,"message" to "Operation Successful"))
+
 
 
                 }
@@ -161,11 +165,11 @@ fun Application.authenticationModule(){
                 val auth=call.sessions.get<AuthSession>()
                 try {
                     if (auth != null) {
-                        var user = Gson().fromJson(auth.userId, UserResponse::class.java)
+                        val user = Gson().fromJson(auth.userId, UserResponse::class.java)
                         var dbUser: User? = null
-                        var params = call.receiveParameters()
+                        val params = call.receiveParameters()
                         transaction {
-                            var dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
+                            val dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
                             if (!dbUserList.empty()) {
                                 dbUser = dbUserList.iterator().next()
                             }
@@ -196,18 +200,16 @@ fun Application.authenticationModule(){
                 val auth = call.sessions.get<AuthSession>()
                 try {
                     if (auth != null) {
-                        var user = Gson().fromJson(auth.userId, UserResponse::class.java)
+                        val user = Gson().fromJson(auth.userId, UserResponse::class.java)
                         var dbUser: User? = null
-                        var address: Address? = null
                         transaction {
-                            var dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
+                            val dbUserList = User.find((Users.email eq user.email) and (Users.name eq user.name))
                             if (!dbUserList.empty()) {
                                 dbUser = dbUserList.iterator().next()
                             }
-                            var addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
+                            val addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
                             if (addressList.hasNext()) {
-                                address = addressList.next()
-                                address!!.delete()
+                                addressList.next().delete()
                             }
                         }
 
@@ -231,7 +233,7 @@ fun Application.authenticationModule(){
 
 private fun ApplicationCall.redirectUrl(path:String):String {
     val defaultPort=  if (request.origin.scheme=="http") 80 else 443
-    val hostPort=request.host()!!+request.port().let{ port -> if (port == defaultPort) "" else ":$port"}
+    val hostPort=request.host()+request.port().let{ port -> if (port == defaultPort) "" else ":$port"}
     val protocol = request.origin.scheme
     return "$protocol://$hostPort$path"
 }

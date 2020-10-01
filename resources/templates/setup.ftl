@@ -23,7 +23,7 @@
         </script>
     
     </head>
-<body style="background: Url(/static/background.jpg); height=1vh">
+<body style="background-image: url('/static/background.jpg'); height:1vh">
     <header>
         <nav class="navbar navbar-light navbar-toggleable-sm navbar-expand-md border-bottom box-shadow mb-3 bg-white">
             <div class="container text-center">
@@ -161,7 +161,7 @@
                 })//formData
     
             })
-
+            location.reload()
         })
     
         function addAddress() {
@@ -170,15 +170,15 @@
 
     
         document.getElementById("addressForm").addEventListener("submit", (e) => {
-            event.preventDefault()
-            var formData = new FormData(document.getElementById("addressForm"))
+            e.preventDefault()
+            let formData = new FormData(document.getElementById("addressForm"))
             fetch("/address", {
                 method: "post",
     
                 body: formData
     
             })
-            location.reload(true)
+            location.reload()
         })
     </script>
 </html>
