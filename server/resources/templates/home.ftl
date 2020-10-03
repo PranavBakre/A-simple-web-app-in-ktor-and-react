@@ -5,7 +5,7 @@
         <title>Kotlin Assignment</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
-    <body style="background: Url(/static/background.jpg); height=1vh">
+    <body style="background-image: url('/static/background.jpg'); height:1vh">
 
         <header>
             <nav class="navbar navbar-light navbar-toggleable-sm navbar-expand-md border-bottom box-shadow mb-3 bg-white">
@@ -18,7 +18,7 @@
         </header>
         <div class="container bg-white">
             <div class="d-inline">
-                <a href="/setup">Profile</a>
+                <a href="/profile">Profile</a>
             </div>
         </div>
         <div class="container">

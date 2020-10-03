@@ -1,12 +1,16 @@
 package com.ktor.assignment.controller
 
 import com.google.gson.Gson
+import com.ktor.assignment.AuthSession
+import com.ktor.assignment.httpClient
 import com.ktor.assignment.models.Address
 import com.ktor.assignment.models.Addresses
 import com.ktor.assignment.models.User
 import com.ktor.assignment.models.Users
+import com.ktor.assignment.utils.JWTConfig
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.client.*
 import io.ktor.client.engine.jetty.*
 import io.ktor.client.request.*
@@ -23,37 +27,21 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.lang.Exception
 
-val httpClient = HttpClient(Jetty)
-val dbUrl=System.getenv("DATABASE_URL")
-val mysqlUser=System.getenv("MYSQL_USER")
-val mysqlPassword=System.getenv("MYSQL_PASSWORD")
-val googleClientId=System.getenv("CLIENT_ID")
-val googleClientSecret=System.getenv("CLIENT_SECRET")
-var googleOAuthProvider= OAuthServerSettings.OAuth2ServerSettings(
-        name = "google",
-        authorizeUrl = "https://accounts.google.com/o/oauth2/auth",
-        accessTokenUrl = "https://www.googleapis.com/oauth2/v3/token",
-        requestMethod = HttpMethod.Post,
 
-        clientId = googleClientId,
-        clientSecret = googleClientSecret,
-        defaultScopes = listOf("profile","email")
-)
 
-fun Application.authenticationModule(){
-    install(Authentication) {
-        oauth ("GoogleAuth"){
-            client= httpClient
-            providerLookup= { googleOAuthProvider }
-            urlProvider={redirectUrl("/login")}
+fun Application.profileModule(){
 
-        }
-    }
 
-    Database.connect(dbUrl,
-            "com.mysql.cj.jdbc.Driver", mysqlUser, mysqlPassword)
 
     routing {
+        authenticate {
+            route("/test") {
+                handle{
+                    call.respondText("hi +${call.principal<JWTPrincipal>()?.payload?.getClaim("name")?.asString()}")
+                }
+
+            }
+        }
         authenticate("GoogleAuth") {
             route("/login") {
                 handle{
@@ -67,8 +55,8 @@ fun Application.authenticationModule(){
                         val user=Gson().fromJson(json, UserResponse::class.java)
 
                         if (user.id != null) {
-                            transaction {
-                                   User.find{(Users.email eq user.email)}.let {
+                            val dbUser=transaction {
+                                User.find(Users.email eq user.email).let {
                                     if (it.empty())
                                         User.new{
                                             name=user.name
@@ -80,8 +68,10 @@ fun Application.authenticationModule(){
                                     else it.iterator().next()
                                 }
                             }
-                            call.sessions.set<AuthSession>(AuthSession(json))
-                            call.respondRedirect("/setup")
+
+                            call.respond(JWTConfig.generateToken(dbUser))
+//                            call.sessions.set<AuthSession>(AuthSession(json))
+//                            call.respondRedirect("/profile")
                             return@handle
 
 
@@ -99,17 +89,16 @@ fun Application.authenticationModule(){
                 call.respondRedirect("/")
             }
         }
-        route("/setup" ) {
-            get {
-                //val auth=call.sessions.get<AuthSession>()
-                val auth=call.sessions.get<AuthSession>()
-                if (auth!=null) {
-                    val user=Gson().fromJson(auth.userId, UserResponse::class.java)
+
+        authenticate {
+            route("/profile" ) {
+                get {
+                    var email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
                     var dbUser: User?=null
                     var profileLock=false
                     var addresses:List<Address>?=null
                     transaction{
-                        User.find(Users.email eq user.email).let{
+                        User.find(Users.email eq email).let{
                             if(!it.empty()){
                                 dbUser=it.iterator().next()
                                 addresses= Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
@@ -117,18 +106,15 @@ fun Application.authenticationModule(){
                             }
                         }
                     }
-                    call.respond(FreeMarkerContent("setup.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
+                    call.respond(FreeMarkerContent("profile.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
                 }
-            }
-            post {
-                val auth=call.sessions.get<AuthSession>()
-                if (auth!=null) {
+                post {
 
-                    val user=Gson().fromJson(auth.userId, UserResponse::class.java)
+                    val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
                     val params=call.receive<ProfileRequest>()
 
                     transaction{
-                        User.find(Users.email eq user.email).let{
+                        User.find(Users.email eq email).let{
                             if(!it.empty()){
                                 it.iterator().next().apply {
                                     if (params.mobileNumber.matches(Regex("^[7-9][0-9]{9}$")))
@@ -156,75 +142,63 @@ fun Application.authenticationModule(){
 
 
 
+
+
+                }
+            }
+            route("/address") {
+                post {
+                    val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
+                    var dbUser: User? = null
+                    val params = call.receive<AddressDto>()
+                    transaction {
+                        val dbUserList = User.find(Users.email eq email)
+                        if (!dbUserList.empty()) {
+                            dbUser = dbUserList.iterator().next()
+                        }
+                        Address.new {
+                            title = params.title
+                            line1 = params.line1
+                            line2 = params.line2
+                            locality = params.locality
+                            city = params.city
+                            state = params.state
+                            pincode = params.pincode.toInt()
+                            active = true
+                            this.user = dbUser!!
+
+                        }
+                    }
+                    call.respond(mapOf("success" to true, "message" to "Operation Successful"))
+                }
+
+                delete("/{id}") {
+                    val id = call.parameters["id"]
+                    val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
+
+                    var dbUser: User? = null
+                    transaction {
+                        val dbUserList = User.find(Users.email eq email)
+                        if (!dbUserList.empty()) {
+                            dbUser = dbUserList.iterator().next()
+                        }
+                        val addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
+                        if (addressList.hasNext()) {
+                            addressList.next().delete()
+                        }
+                    }
+
+                    call.respond(mapOf("success" to true, "message" to "Operation Successful"))
+
+
                 }
 
             }
         }
 
-        route("/address") {
-            post {
-                val auth=call.sessions.get<AuthSession>()
-                try {
-                    if (auth != null) {
-                        val user = Gson().fromJson(auth.userId, UserResponse::class.java)
-                        var dbUser: User? = null
-                        val params = call.receive<AddressDto>()
-                        transaction {
-                            val dbUserList = User.find(Users.email eq user.email)
-                            if (!dbUserList.empty()) {
-                                dbUser = dbUserList.iterator().next()
-                            }
-                            Address.new {
-                                title = params.title
-                                line1 = params.line1
-                                line2 = params.line2
-                                locality = params.locality
-                                city = params.city
-                                state = params.state
-                                pincode = params.pincode.toInt()
-                                active = true
-                                this.user = dbUser!!
 
-                            }
-                        }
-                        call.respond(mapOf("success" to true, "message" to "Operation Successful"))
-                    } else {
-                        call.respond(mapOf("success" to false, "message" to "Missing Authentication"))
-                    }
-                } catch (e:Exception) {
-                    call.respond(mapOf("success" to false, "message" to e.message))
-                }
-            }
 
-            delete("/{id}") {
-                val id = call.parameters["id"]
-                val auth = call.sessions.get<AuthSession>()
-                try {
-                    if (auth != null) {
-                        val user = Gson().fromJson(auth.userId, UserResponse::class.java)
-                        var dbUser: User? = null
-                        transaction {
-                            val dbUserList = User.find(Users.email eq user.email)
-                            if (!dbUserList.empty()) {
-                                dbUser = dbUserList.iterator().next()
-                            }
-                            val addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
-                            if (addressList.hasNext()) {
-                                addressList.next().delete()
-                            }
-                        }
 
-                            call.respond(mapOf("success" to true, "message" to "Operation Successful"))
-
-                    } else {
-                        call.respond(mapOf("success" to false, "message" to "Missing Authentication"))
-                    }
-                } catch (e: Exception) {
-                    call.respond(mapOf("success" to false, "message" to e.message))
-                }
-            }
-
-        }
     }
 
 }
@@ -232,12 +206,6 @@ fun Application.authenticationModule(){
 
 
 
-private fun ApplicationCall.redirectUrl(path:String):String {
-    val defaultPort=  if (request.origin.scheme=="http") 80 else 443
-    val hostPort=request.host()+request.port().let{ port -> if (port == defaultPort) "" else ":$port"}
-    val protocol = request.origin.scheme
-    return "$protocol://$hostPort$path"
-}
 
 data class UserResponse(val id:String,val email:String,val name:String,val picture:String)
 
@@ -251,4 +219,4 @@ data class AddressDto(var title: String,
                       var city : String,
                       var state : String,
                       var active : String
-                    )
+)
