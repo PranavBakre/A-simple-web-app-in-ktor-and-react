@@ -27,16 +27,16 @@ import org.jetbrains.exposed.sql.and
 @kotlin.jvm.JvmOverloads
 fun Application.homeModule(testing: Boolean = false) {
     routing {
-        get("/") {
-            val auth=call.sessions.get<AuthSession>();
-            if(auth!=null)
-            {
-
-                call.respondRedirect("/home")
-            }
-            else
-                call.respond(FreeMarkerContent("index.ftl", null,""))
-            }
+//        get("/") {
+//            val auth=call.sessions.get<AuthSession>();
+//            if(auth!=null)
+//            {
+//
+//                call.respondRedirect("/home")
+//            }
+//            else
+//                call.respond(FreeMarkerContent("index.ftl", null,""))
+//            }
 
 
         get("/home") {

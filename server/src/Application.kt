@@ -77,7 +77,10 @@ fun Application.base() {
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
         header("MyCustomHeader")
+        header(HttpHeaders.AccessControlAllowOrigin)
+        header(HttpHeaders.AccessControlAllowHeaders)
         allowCredentials = true
+
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
 
@@ -137,7 +140,7 @@ fun Application.base() {
 
 
     routing {
-        static("/static") {
+        static("/") {
             resources("static")
         }
     }

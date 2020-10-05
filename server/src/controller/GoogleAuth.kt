@@ -42,11 +42,11 @@ fun Application.profileModule(){
 
             }
         }
-        authenticate("GoogleAuth") {
+        //authenticate("GoogleAuth") {
             route("/login") {
                 handle{
 
-                    val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
+                    val principal = call.receive<LoginRequest>()//call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
                     if (principal!=null) {
                         val json = httpClient.get<String>("https://www.googleapis.com/userinfo/v2/me") {
                             header("Authorization", "Bearer ${principal.accessToken}")
@@ -69,7 +69,7 @@ fun Application.profileModule(){
                                 }
                             }
 
-                            call.respond(JWTConfig.generateToken(dbUser))
+                            call.respond(LoginRequest(JWTConfig.generateToken(dbUser)))
 //                            call.sessions.set<AuthSession>(AuthSession(json))
 //                            call.respondRedirect("/profile")
                             return@handle
@@ -81,7 +81,7 @@ fun Application.profileModule(){
                     }
                 }
             }
-        }
+       // }
 
         route ("/logout") {
             handle {
@@ -91,6 +91,27 @@ fun Application.profileModule(){
         }
 
         authenticate {
+            route("/user"){
+                get {
+                    var email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
+                    val user=transaction {
+                        User.find(Users.email eq email).let {
+                        if (!it.empty()) {
+                            it.iterator().next().let {
+                                UserResponse(it.id.toString(), it.email, it.name, it.profilePicture)
+                            }
+                        }
+                        else {
+                            null
+                        }
+                    }
+
+                    }
+                    if (user != null) {
+                        call.respond(user)
+                    }
+                }
+            }
             route("/profile" ) {
                 get {
                     var email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
@@ -122,7 +143,7 @@ fun Application.profileModule(){
 
                                     if (!this.profileLock && params.username!="")
                                     {
-                                        User.find(Users.username eq params.username).let {userList->
+                                            User.find(Users.username eq params.username).let {userList->
                                             if (userList.empty()){
                                                 this.username=params.username
                                                 this.profileLock=true
@@ -210,7 +231,7 @@ fun Application.profileModule(){
 data class UserResponse(val id:String,val email:String,val name:String,val picture:String)
 
 data class ProfileRequest(val username: String, val mobileNumber : String)
-
+data class LoginRequest (val accessToken:String)
 data class AddressDto(var title: String,
                       var line1: String,
                       var line2 : String,
