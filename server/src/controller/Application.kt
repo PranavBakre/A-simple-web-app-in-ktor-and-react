@@ -38,24 +38,24 @@ fun Application.homeModule(testing: Boolean = false) {
 //                call.respond(FreeMarkerContent("index.ftl", null,""))
 //            }
 
-
-        get("/home") {
-            val auth=call.sessions.get<AuthSession>();
-            if(auth!=null) {
-                var user = Gson().fromJson(auth.userId, UserResponse::class.java)
-                var dbUser= transaction {
-                    User.find(Users.email eq user.email).let {
-                        if(!it.empty())
-                            it.iterator().next()
-                        else null
-                    }
-
-                }
-
-                call.respond(FreeMarkerContent("home.ftl", mapOf("user" to (dbUser)),""))
-            }
-
-        }
+//
+//        get("/home") {
+//            val auth=call.sessions.get<AuthSession>();
+//            if(auth!=null) {
+//                var user = Gson().fromJson(auth.userId, UserResponse::class.java)
+//                var dbUser= transaction {
+//                    User.find(Users.email eq user.email).let {
+//                        if(!it.empty())
+//                            it.iterator().next()
+//                        else null
+//                    }
+//
+//                }
+//
+//                call.respond(FreeMarkerContent("home.ftl", mapOf("user" to (dbUser)),""))
+//            }
+//
+//        }
     }
 }
 

@@ -79,6 +79,7 @@ fun Application.base() {
         header("MyCustomHeader")
         header(HttpHeaders.AccessControlAllowOrigin)
         header(HttpHeaders.AccessControlAllowHeaders)
+        header(HttpHeaders.ContentType)
         allowCredentials = true
 
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.

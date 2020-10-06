@@ -3,10 +3,7 @@ package com.ktor.assignment.controller
 import com.google.gson.Gson
 import com.ktor.assignment.AuthSession
 import com.ktor.assignment.httpClient
-import com.ktor.assignment.models.Address
-import com.ktor.assignment.models.Addresses
-import com.ktor.assignment.models.User
-import com.ktor.assignment.models.Users
+import com.ktor.assignment.models.*
 import com.ktor.assignment.utils.JWTConfig
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -34,15 +31,8 @@ fun Application.profileModule(){
 
 
     routing {
-        authenticate {
-            route("/test") {
-                handle{
-                    call.respondText("hi +${call.principal<JWTPrincipal>()?.payload?.getClaim("name")?.asString()}")
-                }
 
-            }
-        }
-        //authenticate("GoogleAuth") {
+
             route("/login") {
                 handle{
 
@@ -81,16 +71,9 @@ fun Application.profileModule(){
                     }
                 }
             }
-       // }
-
-        route ("/logout") {
-            handle {
-                call.sessions.clear<AuthSession>()
-                call.respondRedirect("/")
-            }
-        }
 
         authenticate {
+
             route("/user"){
                 get {
                     var email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
@@ -115,26 +98,30 @@ fun Application.profileModule(){
             route("/profile" ) {
                 get {
                     var email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
-                    var dbUser: User?=null
+
                     var profileLock=false
                     var addresses:List<Address>?=null
-                    transaction{
+                    var user=transaction{
                         User.find(Users.email eq email).let{
                             if(!it.empty()){
-                                dbUser=it.iterator().next()
-                                addresses= Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
-                                profileLock=dbUser!!.profileLock
-                            }
+                                it.iterator().next()
+                                //addresses= Address.find(Addresses.user eq dbUser!!.id).iterator().asSequence().toList()
+                                //profileLock=dbUser!!.profileLock
+                            } else
+                                null
                         }
                     }
-                    call.respond(FreeMarkerContent("profile.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
+                    if (user!=null) {
+                        call.respond(UserDto(user.name, user.email, user.username, user.mobileNumber, user.profilePicture, user.profileLock))
+                    }
+                    //call.respond(FreeMarkerContent("profile.ftl",mapOf("user" to dbUser,"locked" to profileLock,"Addresses" to addresses),""))
                 }
                 post {
 
                     val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
                     val params=call.receive<ProfileRequest>()
 
-                    transaction{
+                    var user = transaction{
                         User.find(Users.email eq email).let{
                             if(!it.empty()){
                                 it.iterator().next().apply {
@@ -152,15 +139,18 @@ fun Application.profileModule(){
                                         }
 
                                     }
+                                    return@transaction UserDto(this.name, this.email, this.username, this.mobileNumber, this.profilePicture, this.profileLock)
                                 }
 
                             }
                         }
+                        return@transaction null
 
 
                     }
-                    call.respond (mapOf("success" to true,"message" to "Operation Successful"))
-
+                    if (user!=null) {
+                        call.respond(user)
+                    }
 
 
 
@@ -168,49 +158,142 @@ fun Application.profileModule(){
                 }
             }
             route("/address") {
+                get {
+                    val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
+                    val addresses=transaction {
+                        User.find(Users.email eq email) .let {
+                            if(!it.empty())
+                            {
+                                Address.find(Addresses.user eq it.iterator().next().id).let {it2 ->
+                                    if(!it2.empty()){
+                                        var addressList=ArrayList<AddressDto>()
+                                        val iterator=it2.iterator();
+                                        while(iterator.hasNext()){
+                                            val addr=iterator.next()
+                                            addressList.add(
+                                                    AddressDto(
+                                                            addr.id.value,
+                                                            addr.title,
+                                                            addr.line1,
+                                                            addr.line2,
+                                                            addr.locality,
+                                                            addr.pincode,
+                                                            addr.city,
+                                                            addr.state,
+                                                            addr.active))
+                                        }
+                                        return@transaction addressList
+                                    }
+                                    else null
+
+                                }
+                            }
+                            else null
+                        }
+                    }
+                    if (addresses!=null) {
+                        call.respond(addresses)
+                    } else {
+                        call.respond("[]")
+                    }
+                }
                 post {
                     val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
                     var dbUser: User? = null
                     val params = call.receive<AddressDto>()
-                    transaction {
-                        val dbUserList = User.find(Users.email eq email)
-                        if (!dbUserList.empty()) {
-                            dbUser = dbUserList.iterator().next()
-                        }
-                        Address.new {
-                            title = params.title
-                            line1 = params.line1
-                            line2 = params.line2
-                            locality = params.locality
-                            city = params.city
-                            state = params.state
-                            pincode = params.pincode.toInt()
-                            active = true
-                            this.user = dbUser!!
+                    var addresses=transaction {
+                        User.find(Users.email eq email).let {
+                            if (!it.empty()) {
+                                Address.new {
+                                    title = params.title
+                                    line1 = params.line1
+                                    line2 = params.line2
+                                    locality = params.locality
+                                    city = params.city
+                                    state = params.state
+                                    pincode = params.pincode.toInt()
+                                    active = true
+                                    this.user = it.iterator().next()
 
+                                }
+                                Address.find(Addresses.user eq it.iterator().next().id).let{ it2->
+                                    var addressList=ArrayList<AddressDto>()
+                                    val iterator=it2.iterator();
+                                    while(iterator.hasNext()){
+                                        val addr=iterator.next()
+                                        addressList.add(
+                                                AddressDto(
+                                                        addr.id.value,
+                                                        addr.title,
+                                                        addr.line1,
+                                                        addr.line2,
+                                                        addr.locality,
+                                                        addr.pincode,
+                                                        addr.city,
+                                                        addr.state,
+                                                        addr.active))
+                                    }
+                                    addressList
+                                }
+                            }
+                            else null
                         }
+
+
+
                     }
-                    call.respond(mapOf("success" to true, "message" to "Operation Successful"))
+                    if (addresses!=null) {
+                        call.respond(addresses)
+                    } else {
+                        call.respond("[]")
+                    }
                 }
 
                 delete("/{id}") {
                     val id = call.parameters["id"]
                     val email=call.principal<JWTPrincipal>()!!.payload.getClaim("email").asString()
 
-                    var dbUser: User? = null
+                    val addresses=
                     transaction {
-                        val dbUserList = User.find(Users.email eq email)
-                        if (!dbUserList.empty()) {
-                            dbUser = dbUserList.iterator().next()
+                        User.find(Users.email eq email).let{
+                            if (!it.empty()) {
+                                    Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq it.iterator().next().id)).iterator().let{
+                                    if (it.hasNext()) {
+                                        it.next().delete()
+                                    }
+                                }
+                                Address.find(Addresses.user eq it.iterator().next().id).let{ it2->
+                                    var addressList=ArrayList<AddressDto>()
+                                    val iterator=it2.iterator();
+                                    while(iterator.hasNext()){
+                                        val addr=iterator.next()
+                                        addressList.add(
+                                                AddressDto(
+                                                        addr.id.value,
+                                                        addr.title,
+                                                        addr.line1,
+                                                        addr.line2,
+                                                        addr.locality,
+                                                        addr.pincode,
+                                                        addr.city,
+                                                        addr.state,
+                                                        addr.active))
+                                    }
+                                    addressList
+                                }
+                            }
+                            else null
+
+
                         }
-                        val addressList = Address.find((Addresses.id eq id!!.toLong()) and (Addresses.user eq dbUser!!.id)).iterator()
-                        if (addressList.hasNext()) {
-                            addressList.next().delete()
-                        }
+
+
                     }
-
-                    call.respond(mapOf("success" to true, "message" to "Operation Successful"))
-
+                    if (addresses!=null) {
+                        call.respond(addresses)
+                    } else {
+                        call.respond("[]")
+                    }
 
                 }
 
@@ -232,12 +315,14 @@ data class UserResponse(val id:String,val email:String,val name:String,val pictu
 
 data class ProfileRequest(val username: String, val mobileNumber : String)
 data class LoginRequest (val accessToken:String)
-data class AddressDto(var title: String,
-                      var line1: String,
-                      var line2 : String,
-                      var locality : String,
-                      var pincode: String,
-                      var city : String,
-                      var state : String,
-                      var active : String
+data class AddressDto(
+        var id:Long,
+        var title: String,
+        var line1: String,
+        var line2 : String,
+        var locality : String,
+        var pincode: Int,
+        var city : String,
+        var state : String,
+        var active : Boolean
 )

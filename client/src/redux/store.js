@@ -6,18 +6,22 @@ import logger from 'redux-logger'
 import LoginSaga from './login/saga'
 import UserSaga from './user/saga'
 import userReducer from './user/reducer';
+import ProfileSaga from './user/profile/saga';
+import { profileReducer } from './user/profile/reducer';
+import addressSaga from './user/address/saga';
 
 const sagaMiddleWare = createSagaMiddleware()
 const store= createStore(
     combineReducers({
         login:loginReducer,
-        user: userReducer
+        user: userReducer,
+        
     }),
     applyMiddleware(sagaMiddleWare,logger)
 )
 const sagas=function* () {
     yield all ([LoginSaga(),
-    UserSaga()])
+    UserSaga(),ProfileSaga(),addressSaga()])//
 }
 sagaMiddleWare.run(sagas)
 

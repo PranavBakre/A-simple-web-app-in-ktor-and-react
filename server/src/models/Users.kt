@@ -24,3 +24,11 @@ class User(id: EntityID<Long>)  : LongEntity(id){
     var profilePicture by Users.profilePicture
     var profileLock by Users.profileLock
 }
+
+data class UserDto(val name:String,
+                   val email:String,
+                   val username:String,
+                   val mobileNumber:String,
+                   val profilePicture:String,
+                   val profileLock:Boolean
+                   )

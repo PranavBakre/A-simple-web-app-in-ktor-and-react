@@ -1,7 +1,7 @@
 import React from 'react'
 import { Redirect, withRouter } from 'react-router-dom';
 import { Container, Row, Col } from 'reactstrap';
-import GoogleLoginButton from 'components/GoogleLoginButton';
+import GoogleLoginButton from 'components/google-login-button';
 import { connect } from 'react-redux';
 
 class Index extends React.Component {
@@ -10,7 +10,6 @@ class Index extends React.Component {
     }
 
     render() {
-        console.log(this.props.isLoggedIn)
         if (!this.props.isLoggedIn)
         return (
             <Container>

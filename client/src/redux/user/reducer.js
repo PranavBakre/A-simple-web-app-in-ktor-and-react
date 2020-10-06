@@ -1,5 +1,8 @@
+import { combineReducers } from 'redux'
 import { actionChannel } from 'redux-saga/effects'
 import UserConsts from './action.types'
+import { addressReducer } from './address/reducer'
+import { profileReducer } from './profile/reducer'
 
 const initState={
     user:null,
@@ -12,13 +15,13 @@ const userReducer=(state=initState,action) => {
         case UserConsts.LOAD_USER_SUCCESS:
             return {...state,isUserLoading:true, user:action.payload,error:null}
         case UserConsts.LOAD_USER_FAILED:
-            return {...state,isUserLoading:false,error:action.payload,user:''}
+            return {...state,isUserLoading:false,error:action.payload,user:null}
         case UserConsts.LOADING_USER:
-            return {...state,isUserLoading:true, error:null,user:''}
+            return {...state,isUserLoading:true, error:null,user:null}
 
         default:
             return state
     }
 }
 
-export default userReducer
+export default combineReducers( {user:userReducer,profile:profileReducer,address:addressReducer})

@@ -41,7 +41,7 @@
         <div class="row justify-content-center">
 
             <div class="col-10 ">
-                <form method="post" action="/setup" class="mt-3 container" id="formProfile">
+                <form method="post" action="/profile" class="mt-3 container" id="formProfile">
 
                     <div class="row justify-content-center">
                         <div class="form-group col-12 col-md-5  justify-content-center">

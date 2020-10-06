@@ -6,7 +6,7 @@ import LoginConsts from './action.types'
 function* loginWithServer(action){
         
         try {
-        let loginToken=yield fetch("/login",
+        let loginToken=yield fetch("http://localhost:8080/login",
         {
           method:"post",
           headers:{

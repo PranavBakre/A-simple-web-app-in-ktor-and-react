@@ -1,11 +1,12 @@
-import {call, put, takeEvery} from 'redux-saga/effects'
+import { put, takeEvery} from 'redux-saga/effects'
 import { LoadUserSuccess,LoadUserFailure } from './action'
 import UserConsts from './action.types'
 
 function* loadUser(action){
+    console.log(action)
     try {
-        console.log(action)
-    let user=yield fetch("/user",{
+        
+    let user=yield fetch("http://localhost:8080/user",{
         headers:{
             "Authorization":`Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`   
         },
@@ -14,6 +15,7 @@ function* loadUser(action){
     .catch(error=> {
         throw error
     })
+    console.log(user)
     yield put (LoadUserSuccess(user))
     }
     catch(error) {
