@@ -11,8 +11,8 @@ export const LoadUserProfileSuccess=(profile)=>({
 })
 
 export const LoadUserProfileFailure=(error)=>({
-    type:ProfileConsts.LOAD_USER_PROFILE_FAILED,
-    payload:error.error
+    type:ProfileConsts.LOAD_USER_PROFILE_FAILURE,
+    payload:error.message
 })
 export const UpdateUserProfile=(profile) => ({
     type: ProfileConsts.UPDATE_USER_PROFILE,
@@ -25,5 +25,5 @@ export const UpdateUserProfileSuccess=(profile) => ({
 })
 export const UpdateUserProfileFailure=(error) => ({
     type:ProfileConsts.UPDATE_USER_PROFILE_FAILED,
-    payload:error.error
+    payload:error.message
 })

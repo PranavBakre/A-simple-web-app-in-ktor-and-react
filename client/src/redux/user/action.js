@@ -7,6 +7,6 @@ export const LoadUserSuccess=(user) => ({
     payload:user
 })
 export const LoadUserFailure=(error) => ({
-    type:UserConsts.LoadUserFailure,
-    payload:error.error
+    type:UserConsts.LOAD_USER_FAILED,
+    payload:error.message
 })

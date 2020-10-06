@@ -14,12 +14,12 @@ function* loginWithServer(action){
           },
           body:JSON.stringify({"access-token":action.payload})
         }).then(response => response.json())
-        .catch((error)=>{
+        .catch((error)=>{            
             throw error
         })
         localStorage.setItem("AuthorizationJWT",loginToken["access-token"])
         yield put (LoginSuccess(loginToken))
-        }catch(error) {
+        }catch(error) {        
             yield put(LoginFailure(error))
         }
 

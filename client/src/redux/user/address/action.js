@@ -9,7 +9,7 @@ export const LoadUserAddressesSuccess=(addresses) => ({
 })
 export const LoadUserAddressesFailure=(error) => ({
     type:AddressConsts.LOAD_USER_ADDRESSES_FAILURE,
-    payload:error.error
+    payload:error.message
 })
 
 export const UpdateUserAddress=(address)=> ({
@@ -22,7 +22,7 @@ export const UpdateUserAddressSuccess=(addresses)=> ({
 })
 export const UpdateUserAddressFailure=(error)=> ({
     type:AddressConsts.UPDATE_USER_ADDRESS_FAILED,
-    payload:error.error
+    payload:error.message
 })
 
 export const DeleteUserAddress=(addressId)=> ({
@@ -35,7 +35,7 @@ export const DeleteUserAddressSuccess=(addresses)=> ({
 })
 export const DeleteUserAddressFailure=(error)=> ({
     type:AddressConsts.DELETE_USER_ADDRESS_FAILED,
-    payload:error.error
+    payload:error.message
 })
 
 export const InsertUserAddress=(address)=> ({
@@ -48,5 +48,5 @@ export const InsertUserAddressSuccess=(address)=> ({
 })
 export const InsertUserAddressFailure=(error)=> ({
     type:AddressConsts.INSERT_USER_ADDRESS_FAILURE,
-    payload:error.error
+    payload:error.message
 })

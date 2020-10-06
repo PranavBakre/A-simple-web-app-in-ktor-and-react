@@ -11,13 +11,13 @@ export const LoginSuccess=(user)=>({
 })
 
 export const LoginFailure=(error)=>({
-    type:LoginAction.LOGINFAILURE,
-    payload:error.error
+    type:LoginAction.LOGIN_FAILED,
+    payload:error.message
 })
 
 export const LogoutFailure=(error)=>({
     type:LoginAction.LOGOUT_FAILED,
-    payload:error.error
+    payload:error.message
 })
 export const LogoutSuccess=()=>({
     type:LoginAction.LOGOUT_SUCCESS

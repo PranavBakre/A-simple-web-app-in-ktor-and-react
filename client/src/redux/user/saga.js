@@ -15,7 +15,6 @@ function* loadUser(action){
     .catch(error=> {
         throw error
     })
-    console.log(user)
     yield put (LoadUserSuccess(user))
     }
     catch(error) {
