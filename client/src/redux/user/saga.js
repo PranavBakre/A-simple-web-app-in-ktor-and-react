@@ -6,7 +6,7 @@ function* loadUser(action){
     console.log(action)
     try {
         
-    let user=yield fetch("http://localhost:8080/user",{
+    let user=yield fetch("/user",{
         headers:{
             "Authorization":`Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`   
         },

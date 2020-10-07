@@ -4,7 +4,7 @@ import ProfileConsts from './action.types'
 
 function* updateProfile(action) {
     try {
-        let profile = yield fetch("http://localhost:8080/profile", {
+        let profile = yield fetch("/profile", {
             method: "post",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
@@ -28,7 +28,7 @@ function* UpdateProfile() {
 
 function* getProfile(action) {
     try {
-        let profile = yield fetch("http://localhost:8080/profile", {
+        let profile = yield fetch("/profile", {
             method: "get",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`

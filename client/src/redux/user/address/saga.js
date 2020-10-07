@@ -11,7 +11,7 @@ import AddressConsts from './action.types'
 
 function* insertAddress(action){
     try {
-        let addresses = yield fetch("http://localhost:8080/address", {
+        let addresses = yield fetch("/address", {
             method: "post",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
@@ -31,7 +31,7 @@ function* insertAddress(action){
 
 function* updateAddress(action){
     try {
-        let addresses = yield fetch("http://localhost:8080/address", {
+        let addresses = yield fetch("/address", {
             method: "put",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
@@ -51,7 +51,7 @@ function* updateAddress(action){
 
 function* deleteAddress(action){
     try {
-        let addresses = yield fetch("http://localhost:8080/address/"+action.payload, {
+        let addresses = yield fetch("/address/"+action.payload, {
             method: "delete",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
@@ -71,7 +71,7 @@ function* deleteAddress(action){
 
 function* loadAddresses(action){
     try {
-        let addresses = yield fetch("http://localhost:8080/address", {
+        let addresses = yield fetch("/address", {
             method: "get",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
