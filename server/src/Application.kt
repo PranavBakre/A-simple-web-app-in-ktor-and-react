@@ -1,7 +1,6 @@
 package com.ktor.assignment
 
 import com.google.gson.FieldNamingPolicy
-import com.ktor.assignment.controller.homeModule
 import com.ktor.assignment.controller.profileModule
 import com.ktor.assignment.models.User
 import com.ktor.assignment.models.Users
@@ -135,7 +134,6 @@ fun Application.base() {
 
 
 
-    homeModule()
     profileModule()
 
 
