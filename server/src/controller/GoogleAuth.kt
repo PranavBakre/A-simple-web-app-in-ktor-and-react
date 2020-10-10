@@ -1,5 +1,6 @@
 package com.ktor.assignment.controller
 
+import com.auth0.jwt.interfaces.Payload
 import com.google.gson.Gson
 import com.ktor.assignment.AuthSession
 import com.ktor.assignment.httpClient
@@ -59,9 +60,8 @@ fun Application.profileModule(){
                                 }
                             }
 
+
                             call.respond(LoginRequest(JWTConfig.generateToken(dbUser)))
-//                            call.sessions.set<AuthSession>(AuthSession(json))
-//                            call.respondRedirect("/profile")
                             return@handle
 
 
