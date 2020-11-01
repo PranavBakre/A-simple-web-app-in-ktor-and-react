@@ -1,9 +1,6 @@
 package com.ktor.assignment
 
 import com.google.gson.FieldNamingPolicy
-import com.ktor.assignment.controller.profileModule
-import com.ktor.assignment.models.User
-import com.ktor.assignment.models.Users
 import freemarker.cache.ClassTemplateLoader
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -22,6 +19,7 @@ import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.event.Level
 import com.ktor.assignment.utils.*
+import controller.user.userModule
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -134,7 +132,7 @@ fun Application.base() {
 
 
 
-    profileModule()
+    userModule()
 
 
 

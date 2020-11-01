@@ -3,8 +3,7 @@ package com.ktor.assignment.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.ktor.assignment.models.User
-import java.security.Principal
+import models.User
 import java.util.*
 
 object JWTConfig {

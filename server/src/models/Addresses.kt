@@ -1,4 +1,4 @@
-package com.ktor.assignment.models
+package models
 
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -28,3 +28,15 @@ class Address(id: EntityID<Long>) : LongEntity(id){
     var active by Addresses.active
     var user by User referencedOn Addresses.user
 }
+
+data class AddressDto(
+    var id:Long,
+    var title: String,
+    var line1: String,
+    var line2 : String,
+    var locality : String,
+    var pincode: Int,
+    var city : String,
+    var state : String,
+    var active : Boolean
+)

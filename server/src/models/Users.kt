@@ -1,4 +1,4 @@
-package com.ktor.assignment.models
+package models
 
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -32,3 +32,6 @@ data class UserDto(val name:String,
                    val profilePicture:String,
                    val profileLock:Boolean
                    )
+data class UserResponse(val id:String,val email:String,val name:String,val picture:String)
+
+
