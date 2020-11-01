@@ -17,7 +17,7 @@ fun main(){
         SchemaUtils.createDatabase(dbUrl.substring(dbUrl.lastIndexOf('/')+1))
     }
     Database.connect(System.getenv("DATABASE_URL"),
-            "com.mysql.cj.jdbc.Driver","pranav","Praan123")
+            "com.mysql.cj.jdbc.Driver",System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"))
     transaction {
         SchemaUtils.create(Users)
         SchemaUtils.create(Addresses)
