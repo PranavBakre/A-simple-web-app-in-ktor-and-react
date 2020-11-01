@@ -17,7 +17,7 @@ function* loginWithServer(action){
         .catch((error)=>{            
             throw error
         })
-        localStorage.setItem("AuthorizationJWT",loginToken["access-token"])
+        //localStorage.setItem("AuthorizationJWT",loginToken["access-token"])
         yield put (LoginSuccess(loginToken))
         }catch(error) {        
             yield put(LoginFailure(error))

@@ -21,7 +21,7 @@ class Address extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.addresses != prevProps.addresses)
+        if (this.props.addresses !== prevProps.addresses)
             this.setState({ addresses: this.props.addresses })
     }
     addressHeader = () => (<>

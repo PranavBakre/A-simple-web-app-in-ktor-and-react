@@ -1,13 +1,14 @@
-import { all, put, takeEvery } from 'redux-saga/effects'
+import { all, put, select, takeEvery } from 'redux-saga/effects'
 import { LoadUserProfile, LoadUserProfileFailure, LoadUserProfileSuccess, UpdateUserProfileFailure, UpdateUserProfileSuccess } from './action'
 import ProfileConsts from './action.types'
 
 function* updateProfile(action) {
     try {
+        let token = yield select(state => state.login.accessToken)
         let profile = yield fetch("/profile", {
             method: "post",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(action.payload)
@@ -28,10 +29,11 @@ function* UpdateProfile() {
 
 function* getProfile(action) {
     try {
+        let token = yield select(state => state.login.accessToken)
         let profile = yield fetch("/profile", {
             method: "get",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`
+                "Authorization": `Bearer ${token}`
             }
         }).then(response => response.json())
             .catch(error => {

@@ -1,4 +1,4 @@
-import {all, takeEvery, put} from 'redux-saga/effects'
+import {all, takeEvery, put,select} from 'redux-saga/effects'
 import { InsertUserAddressFailure,
     InsertUserAddressSuccess,
     UpdateUserAddressFailure,
@@ -11,10 +11,11 @@ import AddressConsts from './action.types'
 
 function* insertAddress(action){
     try {
+        let token = yield select(state => state.login.accessToken)
         let addresses = yield fetch("/address", {
             method: "post",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(action.payload)
@@ -31,10 +32,11 @@ function* insertAddress(action){
 
 function* updateAddress(action){
     try {
+        let token = yield select(state => state.login.accessToken)
         let addresses = yield fetch("/address", {
             method: "put",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(action.payload)
@@ -51,10 +53,11 @@ function* updateAddress(action){
 
 function* deleteAddress(action){
     try {
+        let token = yield select(state => state.login.accessToken)
         let addresses = yield fetch("/address/"+action.payload, {
             method: "delete",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
             //body: JSON.stringify({"address-id":action.payload})
@@ -71,10 +74,11 @@ function* deleteAddress(action){
 
 function* loadAddresses(action){
     try {
+        let token = yield select(state => state.login.accessToken)
         let addresses = yield fetch("/address", {
             method: "get",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`,
+                "Authorization": `Bearer ${token}`,
             }
         }).then(response => response.json())
         .catch(error => {

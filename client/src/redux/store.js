@@ -9,16 +9,24 @@ import userReducer from './user/reducer';
 import ProfileSaga from './user/profile/saga';
 import { profileReducer } from './user/profile/reducer';
 import addressSaga from './user/address/saga';
-
+import {persistStore,persistCombineReducers} from 'redux-persist'
+import storage from 'redux-persist/lib/storage';
+const persistConfig = {
+    key:'login',
+    storage:storage,
+    whitelist:['login']
+}
 const sagaMiddleWare = createSagaMiddleware()
 const store= createStore(
-    combineReducers({
+    persistCombineReducers(persistConfig,{
         login:loginReducer,
         user: userReducer,
         
     }),
     applyMiddleware(sagaMiddleWare,logger)
 )
+
+const persistor = persistStore(store);
 const sagas=function* () {
     yield all ([LoginSaga(),
     UserSaga(),ProfileSaga(),addressSaga()])//

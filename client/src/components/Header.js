@@ -10,7 +10,7 @@ class Header extends React.Component {
         <header>
             <Navbar light expand="md" color="white" className="border-bottom box-shadow mb-3">
                 <Container className="text-center">
-                    <NavLink className="navbar-brand" to="/">KTorAssignment</NavLink>
+                    <NavbarBrand href="/">KTorAssignment</NavbarBrand>
                 </Container>
                 <GoogleLogoutButton></GoogleLogoutButton>
                 </Navbar>

@@ -1,14 +1,14 @@
-import { put, takeEvery} from 'redux-saga/effects'
+import { put, takeEvery,select} from 'redux-saga/effects'
 import { LoadUserSuccess,LoadUserFailure } from './action'
 import UserConsts from './action.types'
 
 function* loadUser(action){
     console.log(action)
     try {
-        
+        let token = yield select(state => state.login.accessToken)
     let user=yield fetch("/user",{
         headers:{
-            "Authorization":`Bearer ${localStorage.getItem("AuthorizationJWT").toString()}`   
+            "Authorization":`Bearer ${token}`   
         },
         method:"get"
     }).then(response=> response.json())
