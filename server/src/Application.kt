@@ -53,11 +53,8 @@ fun Application.base() {
     install(Sessions) {
         cookie<AuthSession>("Auth") {
             cookie.extensions["SameSite"] = "lax"
-
         }
-//        header<AuthSession>("Auth") {
-//
-//        }
+
     }
 
     install(CallLogging) {
@@ -73,7 +70,6 @@ fun Application.base() {
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
-        header("MyCustomHeader")
         header(HttpHeaders.AccessControlAllowOrigin)
         header(HttpHeaders.AccessControlAllowHeaders)
         header(HttpHeaders.ContentType)
@@ -109,6 +105,7 @@ fun Application.base() {
             urlProvider={redirectUrl("/login")}
 
         }
+        
 
         jwt {
             verifier(JWTConfig.verifier)

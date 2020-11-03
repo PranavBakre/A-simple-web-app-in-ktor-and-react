@@ -7,11 +7,14 @@ import Header from "./components/Header";
 import { Route, Switch } from "react-router-dom";
 import Index from "routes/index";
 import Home from "routes/home";
-import Profile from "routes/home/profile";
 import AuthenticatedRoute from "components/authenticated-route";
-
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { BrowserRouter } from "react-router-dom";
 function App() {
   return (
+    <Provider store={store}>
+      <BrowserRouter>
     <div
       className="App"
       style={{
@@ -27,6 +30,8 @@ function App() {
         <Route path="/" component={Index}></Route>
       </Switch>
     </div>
+    </BrowserRouter>
+    </Provider>
   );
 }
 

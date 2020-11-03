@@ -58,7 +58,7 @@ class Profile extends React.Component {
         <Container>
           <Row>
             <Col className="justify-content-center bg-white ">
-              Profile
+              <Row className="justify-content-center pt-3" xs="12">Profile</Row>
               <Form
                 className="mt-3 container"
                 id="formProfile"
