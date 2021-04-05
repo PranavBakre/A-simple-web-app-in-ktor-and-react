@@ -55,6 +55,6 @@ dependencies {
 }
 
 task(db,dependsOn: 'classes',type: JavaExec) {
-    main='com.ktor.Assignment.DatabaseOperationsKt'
+    main='com.ktor.assignment.DatabaseOperationsKt'
     classpath = sourceSets.main.runtimeClasspath
 }
