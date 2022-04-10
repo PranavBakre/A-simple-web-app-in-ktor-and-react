@@ -1,0 +1,29 @@
+.header {
+    height: 10vh
+}
+
+.landing {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    width: 100vw;
+    height: 90vh;
+}
+
+.sideView {
+    margin-right: 7%;
+    width: 20%;
+}
+
+.item {
+    border-radius: 5px;
+    background-color: whitesmoke;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.title {
+    color: #00002D;
+    font-size: 1.3rem;
+    background-color: rgba(245, 245, 245, 0.4);
+}
