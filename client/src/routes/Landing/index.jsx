@@ -11,6 +11,7 @@ params.append("redirect_uri",window.location.origin);
 params.append("response_type","code");
 params.append("scope",["profile", "email"].join(" "));
 params.append("access_type","offline");
+params.append("prompt","consent")
 
 const loginUrl = authorizationEndpoint + `?${params.toString()}`
 
