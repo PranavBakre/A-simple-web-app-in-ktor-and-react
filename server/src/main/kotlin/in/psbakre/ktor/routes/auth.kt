@@ -7,8 +7,7 @@ import `in`.psbakre.ktor.schema.UserResponse
 import `in`.psbakre.ktor.schema.googleapis.TokenError
 import `in`.psbakre.ktor.schema.googleapis.TokenResponse
 import `in`.psbakre.ktor.schema.googleapis.UserInfo
-import `in`.psbakre.ktor.utils.dotenv
-import `in`.psbakre.ktor.utils.httpClient
+import `in`.psbakre.ktor.utils.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
@@ -98,18 +97,20 @@ fun Route.auth() {
         call.response.cookies.append(
             Cookie(
                 name = "accessToken",
-                value = json.accessToken,
-                expires = GMTDate().plus((json.expiry* 1000).toLong()),
+                value = generateToken(user,"accessToken"),
+                expires = GMTDate().plus((accessTokenValidity).toLong()),
                 httpOnly = true,
+                domain = "localhost",
                 extensions = mapOf("SameSite" to "Strict")
             )
         )
         call.response.cookies.append(
             Cookie(
                 name = "refreshToken",
-                value = json.refreshToken,
-                expires = GMTDate().plus((86400 * 1000).toLong()),
+                value = generateToken(user,"refreshToken"),
+                expires = GMTDate().plus((refreshTokenValidity).toLong()),
                 httpOnly = true,
+                domain = "localhost",
                 path = "/auth/refresh",
                 extensions = mapOf("SameSite" to "Strict")
             )

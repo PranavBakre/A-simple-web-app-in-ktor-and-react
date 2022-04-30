@@ -65,6 +65,9 @@ dependencies {
     // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     implementation("com.zaxxer:HikariCP:5.0.1")
 
+    //Auth0 Java JWT
+    implementation("com.auth0:java-jwt:3.19.1")
+
 
 
 
