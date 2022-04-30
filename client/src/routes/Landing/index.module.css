@@ -1,5 +1,12 @@
 .header {
   height: 10vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  background-color: rgba(245, 245, 245, 0.4);
+  padding: 0 1rem;
+  margin: 1rem;
 }
 
 .landing {
@@ -7,14 +14,14 @@
   flex-direction: row-reverse;
   align-items: center;
   width: 100vw;
-  height: 90vh;
+  height: 85vh;
 }
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100vw;
-  height: 90vh;
+  height: 85vh;
 }
 
 .sideView {
@@ -32,7 +39,6 @@
 .title {
   color: #00002d;
   font-size: 1.3rem;
-  background-color: rgba(245, 245, 245, 0.4);
 }
 
 .lds-dual-ring {

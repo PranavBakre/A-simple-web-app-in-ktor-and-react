@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Navigate } from "react-router-dom";
 import { login } from "redux/auth";
 import css from "./index.module.css";
 
@@ -19,7 +19,7 @@ const loginUrl = authorizationEndpoint + `?${params.toString()}`;
 function Landing() {
   const [params] = useSearchParams();
   const dispatch = useDispatch();
-  const { isLoading } = useSelector((state) => state.auth);
+  const { isLoading, isLoggedIn } = useSelector((state) => state.auth);
   const dispatchCalled = useRef(false);
   useEffect(() => {
     if (!dispatchCalled.current && params && params.has("code")) {
@@ -27,11 +27,13 @@ function Landing() {
       dispatchCalled.current = true;
     }
   }, [params, dispatch]);
-
+  if (isLoggedIn) {
+    return <Navigate to="/app" />;
+  }
   return (
     <>
       <div className={css.header}>
-        <div className={`${css.item} ${css.title}`}>A simple React App</div>
+        <div className={css.title}>A simple React App</div>
       </div>
       {isLoading ? (
         <div className={css.loading}>
