@@ -1,0 +1,50 @@
+.header {
+  height: 10vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  background-color: rgba(245, 245, 245, 0.4);
+  padding: 0 1rem;
+  margin: 1rem;
+}
+
+.title {
+  color: #00002d;
+  font-size: 1.3rem;
+}
+
+.popper {
+  position: relative;
+}
+
+.popperBody {
+  visibility: hidden;
+  background-color: white;
+  border-radius: 5px;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+.popperItem {
+  border-radius: 5px;
+  padding: 1rem 1rem 1rem 1rem;
+}
+
+.popperItem:hover {
+    background-color: rgb(192, 127, 217,0.3);
+}
+
+.profilePhoto {
+  width: 2.3rem;
+  height: 2.3rem;
+  transition: transform 0.2s;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.profilePhoto:hover {
+  transform: scale(1.1);
+}
