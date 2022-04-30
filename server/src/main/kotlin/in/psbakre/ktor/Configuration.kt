@@ -20,6 +20,7 @@ fun Application.configuration() {
     install(CORS) {
         allowCredentials = true
         allowHost("localhost:3000", listOf("http","https"))
+        allowHost("localhost:8000", listOf("http","https"))
         allowHeader(HttpHeaders.ContentType)
         HttpMethod.DefaultMethods.forEach{
             method -> allowMethod(method)
