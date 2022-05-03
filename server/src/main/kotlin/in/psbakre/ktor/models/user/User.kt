@@ -1,5 +1,6 @@
 package `in`.psbakre.ktor.models.user
 
+import io.ktor.server.auth.*
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -12,7 +13,7 @@ object Users: LongIdTable() {
     val googleUserId = varchar("google_user_id", 100).uniqueIndex()
 }
 
-class User(id: EntityID<Long>): LongEntity(id) {
+class User(id: EntityID<Long>): LongEntity(id), Principal {
     companion object: LongEntityClass<User>(Users)
     var firstName by Users.firstName
     var lastName by Users.lastName

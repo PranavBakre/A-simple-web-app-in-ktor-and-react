@@ -37,6 +37,7 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     //Dotenv
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")

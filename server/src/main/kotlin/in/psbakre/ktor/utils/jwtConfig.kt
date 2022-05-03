@@ -7,8 +7,8 @@ import java.util.*
 
 const val jwtIssuer = "in.psbakre.ktor"
 val jwtSecret: String = dotenv["JWT_SECRET"]
-const val accessTokenValidity: Int = 3600 * 1000
-const val refreshTokenValidity: Int = 24 * 3600 * 1000
+const val accessTokenValidity: Long = 3600 * 1000
+const val refreshTokenValidity: Long = 24 * 3600 * 1000
 val algorithm: Algorithm = Algorithm.HMAC256(jwtSecret)
 
 val verifier = JWT.require(algorithm)

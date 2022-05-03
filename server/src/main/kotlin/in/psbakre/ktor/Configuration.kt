@@ -1,9 +1,16 @@
 package `in`.psbakre.ktor
 
+import `in`.psbakre.ktor.models.user.User
 import `in`.psbakre.ktor.schema.ErrorResponse
+import `in`.psbakre.ktor.schema.cookies.AccessTokenCookie
+import `in`.psbakre.ktor.schema.cookies.RefreshTokenCookie
+import `in`.psbakre.ktor.utils.accessTokenValidity
+import `in`.psbakre.ktor.utils.refreshTokenValidity
+import `in`.psbakre.ktor.utils.verifier
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -11,11 +18,13 @@ import io.ktor.server.plugins.cors.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.sessions.*
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
 import java.util.*
 
-
+@Suppress("unused")
 fun Application.configuration() {
     install(CORS) {
         allowCredentials = true
@@ -55,9 +64,41 @@ fun Application.configuration() {
     install(StatusPages) {
         exception<Exception> { call: ApplicationCall, cause ->
             call.application.log.debug(cause.toString())
-            var response = ErrorResponse(500,cause.message!!)
+            val response = ErrorResponse(500,cause.message!!)
             call.response.status(HttpStatusCode.InternalServerError)
             call.respond(response)
         }
+    }
+
+    install(Sessions) {
+        cookie<AccessTokenCookie>("accessToken") {
+            cookie.maxAgeInSeconds = accessTokenValidity
+            cookie.httpOnly = true
+            cookie.extensions["SameSite"]= "strict"
+            cookie.domain = "localhost"
+        }
+
+        cookie<RefreshTokenCookie>("refreshToken"){
+            cookie.maxAgeInSeconds = refreshTokenValidity
+            cookie.httpOnly = true
+            cookie.extensions["SameSite"]= "strict"
+            cookie.domain = "localhost"
+            cookie.path = "/auth/refresh"
+        }
+
+    }
+
+    install(Authentication){
+        session<AccessTokenCookie> {
+            validate { session ->
+                val jwt = verifier.verify(session.value)
+                val claim = jwt.getClaim("userId")
+                if (!claim.isNull) {
+                    transaction{ User[claim.asLong()] }
+                }
+                else null
+            }
+        }
+//        session<RefreshTokenCookie> ("refresh") {  }
     }
 }
