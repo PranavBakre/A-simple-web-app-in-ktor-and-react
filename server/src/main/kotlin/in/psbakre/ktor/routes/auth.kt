@@ -3,7 +3,7 @@ package `in`.psbakre.ktor.routes
 import `in`.psbakre.ktor.models.user.User
 import `in`.psbakre.ktor.models.user.Users
 import `in`.psbakre.ktor.schema.ErrorResponse
-import `in`.psbakre.ktor.schema.UserResponse
+import `in`.psbakre.ktor.schema.user.UserResponse
 import `in`.psbakre.ktor.schema.cookies.AccessTokenCookie
 import `in`.psbakre.ktor.schema.cookies.RefreshTokenCookie
 import `in`.psbakre.ktor.schema.googleapis.TokenError
@@ -16,7 +16,6 @@ import io.ktor.server.routing.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
 import org.apache.commons.validator.routines.UrlValidator
@@ -26,27 +25,17 @@ val urlValidator = UrlValidator(arrayOf<String>("http","https"),UrlValidator.ALL
 
 fun Route.authRoutes() {
     route("/auth"){
-        authenticate {
-            get {
-                call.respondText { "Hi" }
-            }
-        }
         auth()
     }
 }
 
 fun Route.auth() {
-    get("/login") {
-        call.respondText { "Hi" }
-        println("test")
-        call.respondText { "Hi Again" }
-    }
     post("/login"){
         val requestBody = call.receive<LoginRequest>()
         call.application.environment.log.info(requestBody.code)
 
         if (!urlValidator.isValid(requestBody.url)){
-            val error = ErrorResponse(400, "Invalid Url")
+            val error = ErrorResponse("Invalid Url")
             call.response.status(HttpStatusCode.BadRequest)
             call.respond(error)
             return@post
@@ -67,7 +56,7 @@ fun Route.auth() {
         if (status.value !in 200..299) {
             val json: TokenError = response.body()
             call.response.status(status)
-            call.respond(ErrorResponse(statusCode = status.value, message = json.description))
+            call.respond(ErrorResponse(json.description))
             return@post
         }
 
@@ -117,12 +106,14 @@ fun Route.auth() {
 
         call.sessions.set("accessToken",AccessTokenCookie(value = generateToken(user,"accessToken")))
         call.sessions.set("refreshToken",RefreshTokenCookie(value = generateToken(user,"refreshToken")))
-        call.respond(UserResponse(
+        call.respond(
+            UserResponse(
             firstName = user.firstName,
             lastName = user.lastName,
             email = user.email,
             profilePicture = userinfo.profilePicture
-        ))
+        )
+        )
 
     }
 

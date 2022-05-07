@@ -2,7 +2,6 @@ package `in`.psbakre.ktor.utils
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.jetbrains.exposed.sql.Database
 
 private val hikariConfig = HikariConfig().apply {
     jdbcUrl = dotenv["DATABASE_URL"]
