@@ -68,6 +68,8 @@ dependencies {
 
     //Auth0 Java JWT
     implementation("com.auth0:java-jwt:3.19.1")
+    //Konform
+    implementation("io.konform:konform-jvm:0.3.0")
 
 
 
