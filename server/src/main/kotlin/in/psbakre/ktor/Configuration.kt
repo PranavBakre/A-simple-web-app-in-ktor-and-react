@@ -1,5 +1,6 @@
 package `in`.psbakre.ktor
 
+import com.auth0.jwt.exceptions.TokenExpiredException
 import `in`.psbakre.ktor.models.user.User
 import `in`.psbakre.ktor.schema.ErrorResponse
 import `in`.psbakre.ktor.schema.cookies.AccessTokenCookie
@@ -40,6 +41,7 @@ fun Application.configuration() {
         json(
             Json {
                 ignoreUnknownKeys = true
+                encodeDefaults = true
             }
         )
     }
@@ -62,9 +64,20 @@ fun Application.configuration() {
     }
 
     install(StatusPages) {
+        exception<kotlinx.serialization.SerializationException>{call: ApplicationCall, cause ->
+            val message = cause.message!!.replace("'(.*\\.)*".toRegex(),"'").replace("with serial name","")
+            call.application.log.debug(message)
+            val response = ErrorResponse(message)
+            call.response.status(HttpStatusCode.BadRequest)
+            call.respond(response)
+        }
+//        exception<TokenExpiredException> {call: ApplicationCall, cause ->
+//            call.sessions.clear<AccessTokenCookie>()
+//            call.respond(ErrorResponse(statusCode = 401, message="Access Token has expired"))
+//        }
         exception<Exception> { call: ApplicationCall, cause ->
             call.application.log.debug(cause.toString())
-            val response = ErrorResponse(500,cause.message!!)
+            val response = ErrorResponse(cause.message!!)
             call.response.status(HttpStatusCode.InternalServerError)
             call.respond(response)
         }
@@ -91,12 +104,17 @@ fun Application.configuration() {
     install(Authentication){
         session<AccessTokenCookie> {
             validate { session ->
-                val jwt = verifier.verify(session.value)
-                val claim = jwt.getClaim("userId")
-                if (!claim.isNull) {
-                    transaction{ User[claim.asLong()] }
-                }
-                else null
+               try {
+                   val jwt = verifier.verify(session.value)
+                   val claim = jwt.getClaim("userId")
+                   if (!claim.isNull) {
+                       transaction { User[claim.asLong()] }
+                   } else null
+               } catch (e: Exception) {
+                   this.sessions.clear<AccessTokenCookie>()
+                   this.sessions.clear<RefreshTokenCookie>()
+                   null
+               }
             }
         }
 //        session<RefreshTokenCookie> ("refresh") {  }
