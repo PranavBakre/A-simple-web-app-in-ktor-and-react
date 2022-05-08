@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" index element={<Landing />} />
         <Route
-          path="/app"
+          path="/app/*"
           index
           element={
             <AuthenticatedRoute>

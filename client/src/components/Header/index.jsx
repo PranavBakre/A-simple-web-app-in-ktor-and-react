@@ -16,15 +16,14 @@ function Header() {
           alt=""
           referrerPolicy="no-referrer"
         />
-        <div className={css.popperBody} style={{visibility: isMenuOpen?"visible":"hidden"}}>
+        <div
+          className={css.popperBody}
+          style={{ visibility: isMenuOpen ? "visible" : "hidden" }}
+        >
           <div>
-          <div className={css.popperItem}>
-            Profile
-          </div>
-          
-          <div className={css.popperItem}>
-            Logout
-          </div>
+            <div className={css.popperItem}>Profile</div>
+
+            <div className={css.popperItem}>Logout</div>
           </div>
         </div>
       </div>

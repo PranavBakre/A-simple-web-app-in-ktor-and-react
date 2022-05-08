@@ -1,9 +1,8 @@
 .body {
   display: flex;
-  flex-direction: row-reverse;
   align-items: center;
   height: 90vh;
-  padding: 1rem
+  padding: 1rem;
 }
 
 .profileButtonParent {
@@ -15,9 +14,11 @@
   height: 2rem;
   vertical-align: middle;
   align-items: center;
-  background-color: rgba(245, 245, 245, 0.4); 
+  background-color: rgba(245, 245, 245, 0.5);
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
+  color: #0e0e49;
+  text-decoration: none;
 }
 .profileButton {
   display: none;
@@ -30,13 +31,12 @@
   height: 100%;
 }
 
-
-@media screen and (max-width: 768px){
+@media screen and (max-width: 768px) {
   .body {
     width: 80vw;
   }
 }
-@media screen and (min-width: 769px){
+@media screen and (min-width: 769px) {
   .body {
     width: 90vw;
   }

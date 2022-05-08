@@ -1,0 +1,42 @@
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.profileSummary {
+  width: 20%;
+  height: 100%;
+  background-color: rgba(245, 245, 245, 0.1);
+  border-radius: 5px;
+  padding: 1rem;
+  box-sizing: border-box;
+  box-shadow: 0px 0px 20px rgb(0, 0, 0, 0.4);
+}
+
+.profilePicture {
+  width: 100%;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  display: block;
+}
+
+.profileName {
+  text-align: center;
+  font-size: 1.2rem;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: rgba(245, 245, 245, 0.9);
+}
+
+.form {
+  width: 80%;
+  height: 100%;
+  background-color: rgba(245, 245, 245, 0.1);
+  box-shadow: 0px 0px 20px rgb(0, 0, 0, 0.4);
+  border-radius: 5px;
+  padding: 3rem;
+  margin: 0rem 1rem;
+  box-sizing: border-box;
+  color: white;
+}
