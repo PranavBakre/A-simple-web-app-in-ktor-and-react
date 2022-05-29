@@ -15,11 +15,30 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import `in`.psbakre.ktor.models.user.Address as AddressModel
 
 fun Route.addressRoutes() {
     route("/address") {
+        get("/{id}") {
+            val addressId = call.parameters["id"]
+            val user = call.principal<User>()!!
+            val address = transaction {
+                AddressModel.find((Addresses.id eq addressId!!.toLong()) and (Addresses.user eq user.id))
+                    .firstOrNull()
+                    ?.let{
+                    Address(it.id.value,it.line1,it.line2,it.city,it.state, it.postalCode)
+                }
+            }
+            if(address != null){
+                call.respond(GetAddressByIdResponse(address))
+            } else {
+                call.response.status(HttpStatusCode.NotFound)
+                call.respond(ErrorResponse(message = "Address not found"))
+            }
+
+        }
         get {
             val user = call.principal<User>()!!
             val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 5
@@ -27,6 +46,7 @@ fun Route.addressRoutes() {
             val addresses = transaction {
                 AddressModel.find(Addresses.user eq user.id).limit(limit, offset).map { address ->
                     Address(
+                        id = address.id.value,
                         line1 = address.line1,
                         line2 = address.line2,
                         city = address.city,
@@ -79,5 +99,12 @@ data class InsertAddressResponse(
 data class GetAddressListResponse(
     val data: List<Address>,
     val message: String = "Successfully retrieved addresses",
+    val success: Boolean = true
+)
+
+@kotlinx.serialization.Serializable
+data class GetAddressByIdResponse(
+    val data: Address,
+    val message: String = "Successfully retrieved address",
     val success: Boolean = true
 )

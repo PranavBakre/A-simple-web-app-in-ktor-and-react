@@ -24,6 +24,7 @@ data class InsertAddressSchema (
 
 @kotlinx.serialization.Serializable
 data class Address(
+    val id: Long,
     val line1: String,
     val line2: String,
     val city: String,
