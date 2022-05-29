@@ -1,12 +1,18 @@
 .header {
   height: 10vh;
+  max-height: 10vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 5px;
-  background-color: rgba(245, 245, 245, 0.5);
+  background-color: rgba(245, 245, 245, 0.1);
+  box-shadow: 0px 0px 20px rgb(0, 0, 0, 0.4);
   padding: 0 1rem;
   margin: 1rem;
+  box-sizing: border-box;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 1rem;
 }
 
 .landing {
@@ -14,19 +20,19 @@
   flex-direction: row-reverse;
   align-items: center;
   width: 100vw;
-  height: 85vh;
+  min-height: 500px;
 }
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100vw;
-  height: 85vh;
+  min-height: 500px;
 }
 
 .sideView {
   margin-right: 7%;
-  width: 20%;
+  /* width: 20%; */
 }
 
 .item {
@@ -37,7 +43,7 @@
 }
 
 .title {
-  color: #00002d;
+  color: white;
   font-size: 1.3rem;
 }
 

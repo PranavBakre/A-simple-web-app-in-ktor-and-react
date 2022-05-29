@@ -1,5 +1,6 @@
 .header {
   height: 10vh;
+  max-height: 10vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -8,6 +9,10 @@
   box-shadow: 0px 0px 20px rgb(0, 0, 0, 0.4);
   padding: 0 1rem;
   margin: 1rem;
+  box-sizing: border-box;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 1rem;
 }
 
 .title {
@@ -28,7 +33,7 @@
   position: absolute;
   right: 0;
   text-align: center;
-  z-index: 10;
+  z-index: 99;
 }
 
 .popperItem {

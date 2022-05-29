@@ -11,6 +11,7 @@ function TextField({
   placeholder,
   inputClassName,
   inputStyle,
+  value
 }) {
   return (
     <div
@@ -30,6 +31,7 @@ function TextField({
         placeholder={placeholder}
         className={`${css.input} ${inputClassName ?? ""}`}
         {...(inputStyle && { style: inputStyle })}
+        value={value}
       />
     </div>
   );

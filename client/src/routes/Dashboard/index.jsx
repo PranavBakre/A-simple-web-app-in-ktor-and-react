@@ -11,7 +11,7 @@ function Dashboard() {
           <Route path="/profile" element={<Profile />} />
         </Routes>
         <NavLink to="/app/profile" className={css.profileButtonParent}>
-          <span className="material-icons">manage_accounts</span>
+          <span className="material-icons" style={{zIndex: 10}}>manage_accounts</span>
           <div className={css.profileButton}>Profile</div>
         </NavLink>
       </div>

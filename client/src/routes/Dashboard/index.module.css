@@ -1,12 +1,14 @@
 .body {
-  display: flex;
-  align-items: center;
-  height: 90vh;
-  padding: 1rem;
+  
+  min-height: 500px;
+  /* height: 85vh; */
+  padding: 0rem 1rem 1rem 1rem;
+  box-sizing: border-box;
+  /* overflow-x: hidden; */
 }
 
 .profileButtonParent {
-  position: absolute;
+  position: fixed;
   display: flex;
   right: 0;
   top: 20%;
@@ -19,9 +21,11 @@
   border-bottom-left-radius: 10px;
   color: #0e0e49;
   text-decoration: none;
+  z-index: 10;
 }
 .profileButton {
   display: none;
+  z-index: 10;
   /* clip-path: polygon(20% 30%, 100% 0%,100% 100%, 20% 70%); */
 }
 
@@ -29,6 +33,8 @@
   display: flex;
   align-items: center;
   height: 100%;
+
+  z-index: 10;
 }
 
 @media screen and (max-width: 768px) {
