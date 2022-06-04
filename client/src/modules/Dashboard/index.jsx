@@ -1,7 +1,7 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import Header from "components/Header";
 import css from "./index.module.css";
-import Profile from "routes/Modules/Profile";
+import Profile from "modules/Profile/routes/Landing";
 function Dashboard() {
   return (
     <>

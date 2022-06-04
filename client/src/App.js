@@ -1,7 +1,7 @@
 import AuthenticatedRoute from "components/AuthenticatedRoute";
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "routes/Dashboard";
-import Landing from "routes/Landing";
+import Dashboard from "modules/Dashboard";
+import Landing from "modules/Landing";
 import "./App.css";
 
 function App() {

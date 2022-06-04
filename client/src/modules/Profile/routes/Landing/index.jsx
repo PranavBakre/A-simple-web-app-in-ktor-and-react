@@ -1,6 +1,7 @@
 import css from "./index.module.css";
 import { useSelector } from "react-redux";
 import TextField from "components/TextField";
+import AddressModal from "modules/Profile/components/AddressModal";
 function Profile() {
   const { user } = useSelector((state) => state.auth);
   return (
@@ -68,7 +69,7 @@ function Profile() {
             <div className={css.buttonGroup} style={{ verticalAlign: "middle", justifyContent: "end" }}>
               <button className={css.actionButton} style={{ padding: "0.2rem 0.5rem" }}>Set as default</button>
               <button className={css.actionButton} style={{ padding: "0.2rem" }}>
-                <span class="material-icons" style={{ verticalAlign: "middle" }}>
+                <span className="material-icons" style={{ verticalAlign: "middle" }}>
                   delete
                 </span>
               </button>
@@ -92,7 +93,7 @@ function Profile() {
             <div className={css.buttonGroup} style={{ verticalAlign: "middle", justifyContent: "end" }}>
               <button className={css.actionButton} style={{ padding: "0.2rem 0.5rem" }}>Set as default</button>
               <button className={css.actionButton} style={{ padding: "0.2rem" }}>
-                <span class="material-icons" style={{ verticalAlign: "middle" }}>
+                <span className="material-icons" style={{ verticalAlign: "middle" }}>
                   delete
                 </span>
               </button>
@@ -108,7 +109,7 @@ function Profile() {
             <div style={{ display: "flex", gap: "1rem", verticalAlign: "middle", justifyContent: "end" }}>
               <button className={css.actionButton} style={{ padding: "0.2rem 0.5rem" }}>Set as default</button>
               <button className={css.actionButton} style={{ padding: "0.2rem" }}>
-                <span class="material-icons" style={{ verticalAlign: "middle" }}>
+                <span className="material-icons" style={{ verticalAlign: "middle" }}>
                   delete
                 </span>
               </button>
