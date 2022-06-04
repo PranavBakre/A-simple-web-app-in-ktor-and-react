@@ -1,0 +1,44 @@
+.dialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    margin: 0;
+    border: 0;
+    outline: none;
+    width: 40vw;
+    color: white;
+    border-radius: 5px;
+    /* background-color: #2e1252; */
+    background-image: linear-gradient(240deg, #128c6f, #2c4284, #351760);
+    /* background-size: cover; */
+}
+
+.dialog::backdrop {
+    background-color: rgba(0,0,0,0.8);
+}
+
+.dialogHeading {
+    display: flex;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.horizontalRule {
+    border: none;
+    border-top: 1px solid white;
+}
+
+.dialogContent {
+
+}
+
+.saveButton {
+    background-color: rgb(103, 203, 230,0.7);
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+  }
+  .saveButton:hover {
+    background-color: rgb(103, 203, 230,0.9);
+  }
