@@ -1,5 +1,8 @@
 package `in`.psbakre.ktor.routes.profile
 
+import `in`.psbakre.ktor.crud.user.getAddressById
+import `in`.psbakre.ktor.crud.user.getAddresses
+import `in`.psbakre.ktor.crud.user.insertAddress
 import `in`.psbakre.ktor.models.user.Addresses
 import `in`.psbakre.ktor.models.user.User
 import `in`.psbakre.ktor.schema.ErrorDetail
@@ -20,17 +23,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import `in`.psbakre.ktor.models.user.Address as AddressModel
 
 fun Route.addressRoutes() {
-    route("/address") {
+    route("/addresses") {
         get("/{id}") {
             val addressId = call.parameters["id"]
             val user = call.principal<User>()!!
-            val address = transaction {
-                AddressModel.find((Addresses.id eq addressId!!.toLong()) and (Addresses.user eq user.id))
-                    .firstOrNull()
-                    ?.let{
-                    Address(it.id.value,it.line1,it.line2,it.city,it.state, it.postalCode)
-                }
-            }
+            val address = getAddressById(addressId!!.toLong(),user.id)
             if(address != null){
                 call.respond(GetAddressByIdResponse(address))
             } else {
@@ -43,18 +40,8 @@ fun Route.addressRoutes() {
             val user = call.principal<User>()!!
             val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 5
             val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?: 0
-            val addresses = transaction {
-                AddressModel.find(Addresses.user eq user.id).limit(limit, offset).map { address ->
-                    Address(
-                        id = address.id.value,
-                        line1 = address.line1,
-                        line2 = address.line2,
-                        city = address.city,
-                        state = address.state,
-                        postalCode = address.postalCode
-                    )
-                }
-            }
+            val addresses = getAddresses(limit, offset, user.id)
+
             call.respond(GetAddressListResponse(data = addresses))
         }
         post {
@@ -71,16 +58,14 @@ fun Route.addressRoutes() {
                 return@post
             }
 
-            val id = transaction {
-                AddressModel.new {
-                    line1 = body.line1
-                    line2 = body.line2
-                    city = body.city
-                    state = body.state
-                    postalCode = body.postalCode
-                    this.user = user
-                }.id
-            }
+            val id = insertAddress(
+                    body.line1,
+                body.line2,
+                body.city,
+                body.state,
+                body.postalCode,
+                    user
+            ).id
 
             call.respond(InsertAddressResponse(id.value))
         }
