@@ -1,0 +1,32 @@
+# docker-compose.yml
+version: '3'
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: dev.dockerfile
+    networks:
+      - ktor-app-network
+    expose:
+      - "3000"
+    env_file:
+      - client_env
+  server:
+    build: ./server
+    networks:
+      - ktor-app-network
+    expose:
+      - "8080"
+    env_file:
+      - ./server_env
+  gateway:
+    image: nginx
+    volumes:
+      - "./nginx:/etc/nginx/conf.d"
+    networks:
+      - ktor-app-network
+    ports:
+      - "8000:8000"
+networks:
+  ktor-app-network:
+    

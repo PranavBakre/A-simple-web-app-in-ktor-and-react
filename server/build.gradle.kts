@@ -6,6 +6,7 @@ plugins {
     application
     kotlin("jvm") version "1.6.20"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.20"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 repositories {
@@ -13,7 +14,11 @@ repositories {
 }
 
 group = "in.psbakre.ktor"
-version = "0.0.1"
+
+tasks.shadowJar {
+    archiveFileName.set("ktor-server.jar")
+}
+
 application {
     mainClass.set("in.psbakre.ktor.ApplicationKt")
     val isDevelopment: Boolean = project.ext.has("development")
